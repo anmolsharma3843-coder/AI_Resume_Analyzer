@@ -1,0 +1,22 @@
+{
+  "name": "ai_resume_analyzer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.9.2",
+    "multer": "^2.2.0",
+    "nodemon": "^3.1.14",
+    "pdf-parse": "^2.4.5"
+  }
+}
