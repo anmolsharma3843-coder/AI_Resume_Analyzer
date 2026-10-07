@@ -2,22 +2,17 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { fileURLToPath } from "url";
 
 import { connectDB } from "./config/db.js";
-import resumeRoutes from "./routes/resumeRoutes.js";
+import resumeRoutes from "./routes/analysisRoutes.js";
+import authRoutes from "./routes/authRoutes.js"
 
 dotenv.config();
 
 const app = express();
 
-
-// ===============================
-// ES Module __dirname
-// ===============================
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 
 // ===============================
@@ -42,25 +37,22 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-
+app.use(cookieParser());
 // ===============================
 // Static uploads
 // ===============================
 
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
-);
+
 
 
 // ===============================
 // Routes
 // ===============================
 
-app.use(
-  "/api/resumes",
-  resumeRoutes
-);
+// app.use(
+//   "/api/resumes",
+//   analysisRoutes
+// );
 
 
 // ===============================
@@ -73,6 +65,8 @@ app.get("/", (req, res) => {
     message: "Resume AI API is running",
   });
 });
+app.use("/api/auth", authRoutes);
+
 
 
 // ===============================

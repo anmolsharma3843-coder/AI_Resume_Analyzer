@@ -7,7 +7,7 @@ import {
   getAllResumes,
   getResumeById,
   deleteResume,
-} from "../controllers/resumeController.js";
+} from "../controllers/analysisController.js";
 
 const router = express.Router();
 
