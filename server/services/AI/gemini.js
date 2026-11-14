@@ -1,6 +1,53 @@
 
 import { GoogleGenAI } from "@google/genai";
 
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+async function generateWithRetry(ai, prompt) {
+  const maxAttempts = 4;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await ai.models.generateContent({
+        model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+          thinkingConfig: {
+            thinkingLevel: "low",
+          },
+        },
+      });
+    } catch (error) {
+      const message = error.message || "";
+
+      const isTemporary =
+        error.status === 503 ||
+        error.status === 429 ||
+        error.status === 500 ||
+        error.code === 503 ||
+        error.code === 429 ||
+        message.includes("UNAVAILABLE") ||
+        message.includes("high demand") ||
+        message.includes("RESOURCE_EXHAUSTED");
+
+      if (!isTemporary || attempt === maxAttempts) {
+        throw error;
+      }
+
+      const delay = 1000 * Math.pow(2, attempt - 1);
+
+      console.log(
+        `Gemini temporarily unavailable. Retry ${attempt}/${maxAttempts - 1} in ${delay / 1000}s`
+      );
+
+      await sleep(delay);
+    }
+  }
+}
+
 export async function analyzeWithGemini({
   resumeText,
   jobDescription,
@@ -96,19 +143,16 @@ IMPORTANT:
   console.time("Gemini API");
 
   try {
-    const response = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-        thinkingConfig: {
-          thinkingLevel: "low",
-        },
-      },
-    });
+    console.time("Gemini API");
 
-    console.timeEnd("Gemini API");
+let response;
+
+try {
+  response = await generateWithRetry(ai, prompt);
+} finally {
+  console.timeEnd("Gemini API");
+}
+
 
     const responseText = response.text;
 
