@@ -7,7 +7,7 @@ export async function analyzeResume(file, jobDescription) {
   formData.append("jobDescription", jobDescription);
 
   const response = await fetch(
-    `http://localhost:5000/api/analysis/analyze`,
+    `${BASE_URL}/api/analysis/analyze`,
     {
       method: "POST",
       credentials:"include",
@@ -16,7 +16,6 @@ export async function analyzeResume(file, jobDescription) {
   );
 
   const data = await response.json();
-  console.log(response)
   if (!response.ok) {
     throw new Error(data.message || "Resume analysis failed");
   }
